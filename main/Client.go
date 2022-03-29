@@ -35,6 +35,17 @@ import (
 // 		go handleRequest(conn)
 // 	}
 // }
+// TODO this should be called "server" because things are connecting to it!
+
+// func whatOS() add method to determin what OS is running on the connected machine
+
+// add windows specific functions
+
+// add linux specific functions
+// - utilizing things like pwd, "..", and absolute/relative paths
+//   to make our lives easier when we use "cd ..", or "cd [relative file path]"
+
+// add a print formatter if there is not one already made online
 
 // Handles incoming requests.
 func main() {
