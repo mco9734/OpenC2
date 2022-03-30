@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bufio"
 	"fmt"
 	"net"
 	"os"
@@ -23,7 +22,7 @@ func main() {
 	}
 	// Close the listener when the application closes.
 	defer l.Close()
-	fmt.Println("Listening on " + CONN_HOST + ":" + CONN_PORT)
+	fmt.Println("Welcome to OpenC2!\nListening on " + CONN_HOST + ":" + CONN_PORT)
 	for {
 		// Listen for an incoming connection.
 		conn, err := l.Accept()
@@ -44,52 +43,60 @@ func handleRequest(conn net.Conn) {
 
 	for {
 
-		reader := bufio.NewReader(os.Stdin)
-		fmt.Print("Enter text: ")
-		strEcho, _ := reader.ReadString('\n')
+		path, patherr := os.Getwd()
+		if patherr != nil {
+			fmt.Println(patherr)
+		}
+
+		// reader := bufio.NewReader(os.Stdin)
+		// fmt.Print("Enter text: ")
+		// strEcho, _ := reader.ReadString('\n')
+		strEcho := "cd .."
 		strip := strings.TrimSpace(strEcho)
-		buf := []byte(strEcho)
+		// buf := []byte(strEcho)
+		stripSplit := strings.Split(strip, " ")
 
 		if strip == "quit" {
 			fmt.Println("bye")
 			return
 		}
 
-		// servAddr := stripIP + ":3333"
-		// tcpAddr, err := net.ResolveTCPAddr("tcp", servAddr)
-		// if err != nil {
-		// 	println("ResolveTCPAddr failed:", err.Error())
-		// 	os.Exit(1)
-		// }
-
-		// conn, err := net.DialTCP("tcp", nil, tcpAddr)
-		// if err != nil {
-		// 	println("Dial failed:", err.Error())
-		// 	os.Exit(1)
-		// }
-
-		if buf[0] == 'c' && buf[1] == 'd' {
-			fmt.Print("Enter full directory: ")
-			directory, _ := reader.ReadString('\n')
-			strEcho = "cd " + directory
-		}
-		_, err := conn.Write([]byte(strEcho))
-		if err != nil {
-			println("Write to server failed:", err.Error())
+		if stripSplit[0] == "cd" {
+			// fmt.Print("Enter full directory: ")
+			// directory, _ := reader.ReadString('\n')
+			// strEcho = "cd " + directory
+			if stripSplit[1] == ".." {
+				splitPath := strings.Split(path, "\\")
+				newDirectory := ""
+				for i := 0; i < len(splitPath)-1; i++ {
+					newDirectory += splitPath[i] + "\\"
+				}
+				strEcho = "cd" + newDirectory
+			} else {
+				strEcho = "cd" + path + "\\" + stripSplit[1]
+			}
 		}
 
-		println("write to server =", strEcho)
-
-		reply := make([]byte, 8192)
-
-		_, err = conn.Read(reply)
-		if err != nil {
-			println("no result output", err.Error())
-		}
-
-		println("reply from server=", string(reply))
-
+		communicate(conn, strEcho)
 		// conn.Close()
 	}
 
+}
+
+func communicate(conn net.Conn, strEcho string) {
+	_, err := conn.Write([]byte(strEcho))
+	if err != nil {
+		println("Write to server failed:", err.Error())
+	}
+
+	println("write to server =", strEcho)
+
+	reply := make([]byte, 8192)
+
+	_, err = conn.Read(reply)
+	if err != nil {
+		println("no result output", err.Error())
+	}
+
+	println("reply from server=", string(reply))
 }
