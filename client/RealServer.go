@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bufio"
 	"fmt"
 	"net"
 	"os"
@@ -48,10 +49,10 @@ func handleRequest(conn net.Conn) {
 			fmt.Println(patherr)
 		}
 
-		// reader := bufio.NewReader(os.Stdin)
-		// fmt.Print("Enter text: ")
-		// strEcho, _ := reader.ReadString('\n')
-		strEcho := "cd .."
+		reader := bufio.NewReader(os.Stdin)
+		fmt.Print("Enter text: ")
+		strEcho, _ := reader.ReadString('\n')
+		// strEcho := "cd .."
 		strip := strings.TrimSpace(strEcho)
 		// buf := []byte(strEcho)
 		stripSplit := strings.Split(strip, " ")
@@ -71,9 +72,11 @@ func handleRequest(conn net.Conn) {
 				for i := 0; i < len(splitPath)-1; i++ {
 					newDirectory += splitPath[i] + "\\"
 				}
-				strEcho = "cd" + newDirectory
+				strEcho = "cd " + newDirectory
+				path = newDirectory
 			} else {
-				strEcho = "cd" + path + "\\" + stripSplit[1]
+				strEcho = "cd " + path + "\\" + stripSplit[1]
+				path += "\\" + stripSplit[1]
 			}
 		}
 
