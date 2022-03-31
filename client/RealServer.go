@@ -157,7 +157,11 @@ func getdirectory(conn net.Conn) string {
 	if err != nil {
 		println("no result output", err.Error())
 	}
-	directory := string(reply)
-	directory = strings.TrimSpace(directory)
+	directory := ""
+	for _, v := range reply {
+		if v != 0 {
+			directory = directory + string(v)
+		}
+	}
 	return directory
 }
