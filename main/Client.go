@@ -102,7 +102,7 @@ func main() {
 				splits := strings.Split(bufString, " ")
 				if len(splits) <= 1 {
 					conn.Write([]byte("cd no worky"))
-					break
+					continue
 				}
 				// fmt.Println(splits[1])
 				dir := strings.TrimSpace(splits[1])
